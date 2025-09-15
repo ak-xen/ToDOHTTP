@@ -7,7 +7,7 @@ type Task struct {
 }
 
 type Repository interface {
-	Save(task Task) error
+	Save(title string) error
 	GetList() ([]string, error)
 	FindByID(id int) (Task, error)
 	Update(task Task) error
