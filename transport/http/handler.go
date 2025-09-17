@@ -16,7 +16,10 @@ type Handler struct {
 func NewHandler(repo task.Repository) *Handler {
 	return &Handler{repo}
 }
-
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Неизвестный метод CRUD!"))
+	w.Header().Set("Content-Type", "application/json")
+}
 func (h *Handler) SaveTask(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
@@ -45,6 +48,15 @@ func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	combined := strings.Join(tasks, "\n")
 
 	resp := json.RawMessage(combined)
+
+	lenResponse := len(resp)
+
+	if lenResponse == 0 {
+		_, err = w.Write([]byte("Нет активных задач"))
+		if err != nil {
+			return
+		}
+	}
 
 	_, err = w.Write(resp)
 	if err != nil {

@@ -1,5 +1,7 @@
 package task
 
+import "fmt"
+
 type Repo struct {
 	data    map[int]Task
 	Counter int
@@ -12,6 +14,7 @@ func NewRepo() *Repo {
 func (r *Repo) Save(title string) error {
 	id := r.Counter
 	r.data[id] = Task{ID: id, Title: title, Done: true}
+	fmt.Println(r.data)
 	return nil
 }
 
