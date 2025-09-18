@@ -94,28 +94,18 @@ func (h *Handler) FindId(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
-	}
 
-	idStr := r.URL.Query().Get("id")
-	if idStr == "" {
-		http.Error(w, "Параметр id обязателен", http.StatusBadRequest)
-		return
-	}
+	var t task.Task
 
-	id, _ := strconv.Atoi(idStr)
+	err := json.NewDecoder(r.Body).Decode(&t)
 
-	fTask, err := h.repo.FindByID(id)
+	_, err = h.repo.FindByID(t.ID)
 
 	if err != nil {
 		http.Error(w, "Не существующий ID", http.StatusBadRequest)
 		return
 	}
-
-	title := r.URL.Query().Get("title")
-	fTask.Title = title
-	err = h.repo.Update(fTask)
+	err = h.repo.Update(t)
 	if err != nil {
 		return
 	}

@@ -27,7 +27,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 				r.Hd.SaveTask(w, req)
 			}
 		case http.MethodPut:
-			if query := req.URL.Query(); query.Has("id") {
+			{
 				r.Hd.UpdateTask(w, req)
 			}
 		case http.MethodDelete:
