@@ -52,12 +52,8 @@ func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	resp := make(map[int]string)
 
-	for _, v := range tasks {
-		resp[v.ID] = v.Title
-	}
-	err = json.NewEncoder(w).Encode(resp)
+	err = json.NewEncoder(w).Encode(tasks)
 	if err != nil {
 		return
 	}
