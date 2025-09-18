@@ -1,14 +1,14 @@
 package task
 
 type Task struct {
-	ID    int
-	Title string
-	Done  bool
+	ID    int    `json:"id"`
+	Title string `json:"title"`
+	Done  bool   `json:"done"`
 }
 
 type Repository interface {
 	Save(title string) error
-	GetList() ([]string, error)
+	GetList() ([]Task, error)
 	FindByID(id int) (Task, error)
 	Update(task Task) error
 	Delete(id int) error

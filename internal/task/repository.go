@@ -1,6 +1,9 @@
 package task
 
-import "fmt"
+import (
+	"errors"
+	"strings"
+)
 
 type Repo struct {
 	data    map[int]Task
@@ -8,32 +11,33 @@ type Repo struct {
 }
 
 func NewRepo() *Repo {
-	return &Repo{}
+	return &Repo{data: make(map[int]Task), Counter: 0}
 }
 
 func (r *Repo) Save(title string) error {
-	id := r.Counter
-	r.data[id] = Task{ID: id, Title: title, Done: true}
-	fmt.Println(r.data)
+	id := r.GetNextCount()
+	r.data[id] = Task{ID: id, Title: strings.Trim(title, "\""), Done: true}
 	return nil
 }
 
-func (r *Repo) GetNextCount() (int, error) {
+func (r *Repo) GetNextCount() int {
 	r.Counter++
-	return r.Counter, nil
+	return r.Counter
 }
 
-func (r *Repo) GetList() ([]string, error) {
-
-	tasks := make([]string, 0)
-	for _, value := range r.data {
-		tasks = append(tasks, value.Title)
+func (r *Repo) GetList() ([]Task, error) {
+	tasks := make([]Task, 0)
+	for _, v := range r.data {
+		tasks = append(tasks, v)
 	}
 	return tasks, nil
 }
 
 func (r *Repo) FindByID(id int) (Task, error) {
-	return r.data[id], nil
+	if value, ok := r.data[id]; ok == true {
+		return value, nil
+	}
+	return Task{}, errors.New("Not Found")
 }
 
 func (r *Repo) Update(task Task) error {

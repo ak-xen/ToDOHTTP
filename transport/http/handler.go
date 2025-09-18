@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/ak-xen/ToDOHTTP/internal/task"
 )
@@ -39,17 +38,13 @@ func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
 		return
 	}
-
+	w.Header().Set("Content-Type", "application/json")
 	tasks, err := h.repo.GetList()
 	if err != nil {
 		http.Error(w, "Не возможно прочитать данные", http.StatusMethodNotAllowed)
 	}
 
-	combined := strings.Join(tasks, "\n")
-
-	resp := json.RawMessage(combined)
-
-	lenResponse := len(resp)
+	lenResponse := len(tasks)
 
 	if lenResponse == 0 {
 		_, err = w.Write([]byte("Нет активных задач"))
@@ -57,12 +52,16 @@ func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	resp := make(map[int]string)
 
-	_, err = w.Write(resp)
+	for _, v := range tasks {
+		resp[v.ID] = v.Title
+	}
+	err = json.NewEncoder(w).Encode(resp)
 	if err != nil {
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
+
 }
 
 func (h *Handler) FindId(w http.ResponseWriter, r *http.Request) {
@@ -77,7 +76,7 @@ func (h *Handler) FindId(w http.ResponseWriter, r *http.Request) {
 
 	taskF, err := h.repo.FindByID(idInt)
 	if err != nil {
-		http.Error(w, "ID не найден", http.StatusMethodNotAllowed)
+		http.Error(w, "ID не найден", http.StatusBadRequest)
 		return
 	}
 
@@ -132,7 +131,13 @@ func (h *Handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 
 	id, _ := strconv.Atoi(idStr)
 
-	err := h.repo.Delete(id)
+	_, err := h.repo.FindByID(id)
+	if err != nil {
+		http.Error(w, "ID не найден", http.StatusBadRequest)
+		return
+	}
+
+	err = h.repo.Delete(id)
 	if err != nil {
 		return
 
